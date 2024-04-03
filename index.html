@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diario Personal</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #555;
+        }
+
+        #entries {
+            margin-top: 20px;
+            border-top: 1px solid #ccc;
+            padding-top: 20px;
+        }
+
+        #past-entries li {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <form id="login-form">
+        <label for="username">Usuario:</label>
+        <input type="text" id="username" name="username" required>
+        <label for="password">Contraseña:</label>
+        <input type="password" id="password" name="password" required>
+        <button type="submit">Iniciar sesión</button>
+    </form>
+
+    <div id="diary-form" style="display: none;">
+        <h2>Diario Personal</h2>
+        <textarea id="diary-entry" rows="10"></textarea>
+        <button id="save-entry">Guardar entrada</button>
+    </div>
+
+    <div id="entries" style="display: none;">
+        <h2>Entradas Pasadas</h2>
+        <ul id="past-entries"></ul>
+    </div>
+
+    <script>
+        document.getElementById("login-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            var username = document.getElementById("username").value;
+            var password = document.getElementById("password").value;
+
+            var validCredentials = {
+                "Stark": "Viernes",
+                "Rodriguez": "Mark85",
+                "Ramos": "Mark23",
+                "Ponce": "Mark70",
+                "Banner": "HulkBuster",
+                "Strange": "Mark15",
+                "Señorita V": "SandovalMK80",
+                "MilagrosAVM": "Mark12",
+                "Cano23": "Mark24",
+                "Eduardo": "Mark62",
+            };
+
+            if (validCredentials[username] && validCredentials[username] === password) {
+                alert("Credencial correcta. Bienvenido, " + username + "!");
+                // Muestra el formulario del diario
+                document.getElementById("diary-form").style.display = "block";
+                // Oculta el formulario de inicio de sesión
+                document.getElementById("login-form").style.display = "none";
+
+                // Cargar las entradas pasadas del diario
+                var pastEntries = JSON.parse(localStorage.getItem("diaryEntries")) || [];
+                var entriesList = document.getElementById("past-entries");
+                pastEntries.forEach(function(entry, index) {
+                    var truncatedEntry = entry.substring(0, 10); // Obtener las primeras 10 letras
+                    var li = document.createElement("li");
+                    li.textContent = truncatedEntry + "..."; // Agregar puntos suspensivos para indicar que hay más texto
+                    li.setAttribute("data-index", index); // Añadir un atributo de datos para almacenar el índice de la entrada completa
+                    entriesList.appendChild(li);
+                });
+                document.getElementById("entries").style.display = "block";
+            } else {
+                alert("Credenciales inválidas. Por favor, inténtalo de nuevo.");
+            }
+        });
+
+        document.getElementById("save-entry").addEventListener("click", function() {
+            var diaryEntry = document.getElementById("diary-entry").value;
+            if (diaryEntry.trim() === "") {
+                alert("Por favor, escribe algo en tu entrada antes de guardar.");
+                return;
+            }
+            // Guardar la entrada del diario en localStorage
+            var pastEntries = JSON.parse(localStorage.getItem("diaryEntries")) || [];
+            pastEntries.push(diaryEntry);
+            localStorage.setItem("diaryEntries", JSON.stringify(pastEntries));
+
+            // Mostrar la entrada guardada en la lista de entradas pasadas
+            var entryList = document.getElementById("past-entries");
+            var newEntry = document.createElement("li");
+            newEntry.textContent = diaryEntry.substring(0, 10) + "..."; // Obtener las primeras 10 letras
+            newEntry.setAttribute("data-index", pastEntries.length - 1); // Añadir un atributo de datos para almacenar el índice de la entrada completa
+            entryList.appendChild(newEntry);
+
+            // Limpiar el área de texto después de guardar la entrada
+            document.getElementById("diary-entry").value = "";
+        });
+
+        // Agregar un evento de clic a las entradas pasadas para mostrar la entrada completa
+        document.getElementById("past-entries").addEventListener("click", function(event) {
+            var index = event.target.getAttribute("data-index");
+            var pastEntries = JSON.parse(localStorage.getItem("diaryEntries")) || [];
+            if (index !== null && index >= 0 && index < pastEntries.length) {
+                alert("Entrada completa:\n" + pastEntries[index]);
+            }
+        });
+    </script>
+</body>
+</html>
